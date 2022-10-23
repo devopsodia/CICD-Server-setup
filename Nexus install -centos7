@@ -1,0 +1,72 @@
+Installing Sonatype Nexus Repository OSS on CentOS 7
+System requirements
+Minimum CPUs: 4, Recommended CPUs: 8+
+Minimum physical/RAM on the host 8GB
+
+hostnamectl set-hostname nexus
+yum update -y
+yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel
+java -version
+ Download Nexus Repository Manager 3
+ -----------------------------------
+cd /opt
+wget https://download.sonatype.com/nexus/3/nexus-3.42.0-01-unix.tar.gz
+tar -xvzf nexus-3.42.0-01-unix.tar.gz
+ls -lh
+mv nexus-3.42.0-01 nexus
+mv sonatype-work nexusdata
+
+Set User/Permissions and Configurations
+---------------------------------------
+useradd --system --no-create-home nexus
+chown -R nexus:nexus /opt/nexus
+chown -R nexus:nexus /opt/nexusdata
+-------------------------------------
+vi /opt/nexus/bin/nexus.vmoptions
+------------------------------------
+-Xms2703m
+-Xmx2703m
+-XX:MaxDirectMemorySize=2703m
+-XX:+UnlockDiagnosticVMOptions
+-XX:+LogVMOutput
+-XX:LogFile=../nexusdata/nexus3/log/jvm.log
+-XX:-OmitStackTraceInFastThrow
+-Djava.net.preferIPv4Stack=true
+-Dkaraf.home=.
+-Dkaraf.base=.
+-Dkaraf.etc=etc/karaf
+-Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
+-Dkaraf.data=../nexusdata/nexus3
+-Dkaraf.log=../nexusdata/nexus3/log
+-Djava.io.tmpdir=../nexusdata/nexus3/tmp
+-Dkaraf.startLocalConsole=false
+--------------------------------------------
+vi /opt/nexus/bin/nexus.rc
+run_as_user="nexus"
+
+vi /etc/security/limits.conf
+nexus - nofile 65536
+--------------------------------
+Set Nexus as a System Service
+-----------------------------
+vi /etc/systemd/system/nexus.service
+----------------------------------------
+[Unit]
+Description=Nexus Service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Group=nexus
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+-------------------------------------
+systemctl daemon-reload
+systemctl enable nexus.service
+systemctl start nexus.service
