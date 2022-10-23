@@ -1,0 +1,32 @@
+Go to the official link 
+https://www.jenkins.io/doc/book/installing/linux/
+Prerequisites
+Minimum hardware requirements:
+256 MB of RAM
+1 GB of drive space (although 10 GB is a recommended minimum if running Jenkins as a Docker container)
+Recommended hardware configuration for a small team:
+4 GB+ of RAM
+50 GB+ of drive space
+----------------------------------------
+Long Term Support release
+-------------------------------
+sudo wget -O /etc/yum.repos.d/jenkins.repo \ https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+sudo yum upgrade
+# Add required dependencies for the jenkins package
+sudo yum install java-11-openjdk
+sudo yum install jenkins
+sudo systemctl daemon-reload
+----------------------------------------
+Start Jenkins
+You can enable the Jenkins service to start at boot with the command:
+--------------------------------------------------------------------------
+sudo systemctl enable jenkins
+You can start the Jenkins service with the command:
+sudo systemctl start jenkins
+You can check the status of the Jenkins service using the command:
+sudo systemctl status jenkins
+---------------------------------------------------
+Unlocking Jenkins
+----------------------------------
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
